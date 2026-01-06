@@ -1,0 +1,38 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as T
+
+from tqdm.auto import tqdm, trange
+
+def compute_loss(model, x1, device='cpu'):
+    b, c, h, w = x1.shape
+    
+    x0 = torch.rand_like(x1).to(device)
+    t = torch.rand(b).to(device)
+    t_exp = t[..., None, None, None] # or t.view(b, 1, 1, 1)
+    
+    xt = (1 - t_exp)*x0 + t_exp*x1
+    
+    # xt = (1 - t) x0 + t x1
+    
+    ut = x1 - x0 #actual
+    vt = model(xt, t) #pred
+    
+    loss = T.mse_loss(vt, ut)
+    
+    return loss
+
+@torch.no_grad()
+def sample_ode(model, shape, steps=500, device='cpu'):
+    x = torch.rand(shape).to(device)
+    dt = 1 / steps
+    
+    for i in trange(steps, leave=False):
+        t_val = i / steps
+        t = torch.tensor([t_val]).to(device) #torch.full([shape[0]], t_val)
+        
+        vt = model(x, t)
+        
+        x += vt * dt
+    
+    return x
