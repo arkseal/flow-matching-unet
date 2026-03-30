@@ -1,15 +1,17 @@
+from pathlib import Path
+
 import torch
 import torch.optim as optim
 from torchvision.utils import save_image, make_grid
 
 from tqdm.auto import tqdm, trange
 
-from src.flow import compute_loss, sample_ode
+from src.flow import compute_loss, _generate
 from src.model import FlowMatchingUNet
-from src.data import get_train_data, inverse_normalization
+from src.data import get_train_data
 
-
-def train(batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu'):
+def train(batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu',
+          checkpoint_path=Path('./checkpoints'), save_path=Path('./results')):
     dataloader = get_train_data(batch_size=batch_size, num_workers=num_workers)
     val_shape = (16, 1, 28, 28)
     
@@ -39,13 +41,12 @@ def train(batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu'):
             model.eval()
             tqdm.write(f'Generating Samples for epoch {epoch}:')
             
-            generated_images = sample_ode(model, val_shape, device=device)
+            generated_images = _generate(model, val_shape, device)
             
-            generated_images = inverse_normalization(generated_images.cpu())
-            save_path = f'results/epoch_{epoch:03d}.png'
-            save_image(make_grid(generated_images, nrow=4), save_path)
+            image_save_path = save_path / f'epoch_{epoch:03d}.png'
+            save_image(make_grid(generated_images, nrow=4), image_save_path)
             
-            torch.save(model.state_dict(), f'checkpoints/model_epoch_{epoch}.pth')
+            torch.save(model.state_dict(), checkpoint_path / f'model_epoch_{epoch}.pth')
     
     print('Training complete')
-    torch.save(model.state_dict(), 'checkpoints/model_final.pth')
+    torch.save(model.state_dict(), checkpoint_path / 'model_final.pth')

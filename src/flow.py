@@ -4,6 +4,8 @@ import torch.nn.functional as T
 
 from tqdm.auto import tqdm, trange
 
+from .data import inverse_normalization
+
 def compute_loss(model, x1, device='cpu'):
     b, c, h, w = x1.shape
     
@@ -23,11 +25,11 @@ def compute_loss(model, x1, device='cpu'):
     return loss
 
 @torch.no_grad()
-def sample_ode(model, shape, steps=500, device='cpu'):
+def sample_ode(model, shape, steps=500, device='cpu', leave_progress=False):
     x = torch.rand(shape).to(device)
     dt = 1 / steps
     
-    for i in trange(steps, leave=False):
+    for i in trange(steps, leave=leave_progress):
         t_val = i / steps
         t = torch.tensor([t_val]).to(device) #torch.full([shape[0]], t_val)
         
@@ -36,3 +38,9 @@ def sample_ode(model, shape, steps=500, device='cpu'):
         x += vt * dt
     
     return x
+
+def _generate(model, shape, device, leave_progress=False):
+    generated_images = sample_ode(model, shape, device=device, leave_progress=leave_progress)
+    generated_images = inverse_normalization(generated_images.cpu())
+    
+    return generated_images
