@@ -3,7 +3,7 @@
 This repository contains a very simple PyTorch implementation of a Flow Matching Unet model for generative tasks, based of the paper [Flow Matching for Generative Modeling](https://arxiv.org/abs/2210.02747).
 
 # TODO
-- [ ] Add requirements.txt
+- [x] Add requirements.txt
 - [ ] Add gif generation script for results visualization
     - [ ] Add evaluate mode
 - [ ] Implement main.py CLI
