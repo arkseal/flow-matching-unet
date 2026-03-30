@@ -6,7 +6,7 @@ This repository contains a very simple PyTorch implementation of a Flow Matching
 - [x] Add requirements.txt
 - [ ] Add gif generation script for results visualization
     - [ ] Add evaluate mode
-- [-] Implement main.py CLI
+- [ ] Implement main.py CLI
     - [x] Add argument parsing
     - [x] Add arguments for hyperparameters
     - [ ] Add logging functionality
