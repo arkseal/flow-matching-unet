@@ -11,15 +11,24 @@ from src.model import FlowMatchingUNet
 from src.data import get_train_data
 
 def train(batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu',
-          checkpoint_path=Path('./checkpoints'), save_path=Path('./results')):
-    dataloader = get_train_data(batch_size=batch_size, num_workers=num_workers)
+          checkpoint_path=Path('./checkpoints'), save_path=Path('./results'), resume_path=None):
+    start_epoch = 1
     val_shape = (16, 1, 28, 28)
     
+    dataloader = get_train_data(batch_size=batch_size, num_workers=num_workers)
     
     model = FlowMatchingUNet().to(device)
     optimizer = optim.AdamW(model.parameters(), lr=lr)
+    if resume_path:
+        checkpoint = torch.load(resume_path)
+        
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        epochs = epochs + start_epoch - 1
+        loss = checkpoint['loss']
     
-    for epoch in trange(epochs):
+    for epoch in trange(start_epoch, epochs+1):
         model.train()
         total_loss = 0
         
@@ -46,7 +55,24 @@ def train(batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu',
             image_save_path = save_path / f'epoch_{epoch:03d}.png'
             save_image(make_grid(generated_images, nrow=4), image_save_path)
             
-            torch.save(model.state_dict(), checkpoint_path / f'model_epoch_{epoch}.pth')
+            checkpoint = {
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': loss,
+            }
+            torch.save(checkpoint, checkpoint_path / f'model_epoch_{epoch}.pth')
     
     print('Training complete')
-    torch.save(model.state_dict(), checkpoint_path / 'model_final.pth')
+    checkpoint = {
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss': loss,
+    }
+    torch.save(checkpoint, checkpoint_path / f'model_epoch_{epoch}.pth')
+    
+    final_model = {
+        'model_state_dict': model.state_dict()
+    }
+    torch.save(final_model, checkpoint_path / 'model_final.pth')

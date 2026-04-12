@@ -3,17 +3,16 @@
 This repository contains a very simple PyTorch implementation of a Flow Matching Unet model for generative tasks, based of the paper [Flow Matching for Generative Modeling](https://arxiv.org/abs/2210.02747).
 
 # TODO
-- [x] Add requirements.txt
-- [ ] Add gif generation script for results visualization
-    - [ ] Add evaluate mode
+- [x] Add gif generation script for results visualization
+    - [x] Add evaluate mode
+- [x] Add resume training functionality
 - [ ] Implement main.py CLI
     - [x] Add argument parsing
     - [x] Add arguments for hyperparameters
     - [ ] Add logging functionality
-- [ ] Add resume training functionality
 - [ ] Add more image dataset support
     - [ ] CIFAR-10
-    - [ ] ImageNet
+    - [ ] ImageNet (not important for now)
 - [ ] Implement Audio implementation
 - [ ] Add evaluation metrics
 - [ ] Add pre-trained model checkpoints
@@ -39,11 +38,18 @@ pip install -r requirements.txt
 
 This implementation used MINIST dataset for training and evaluation. The code will be modified to support other datasets in the future.
 
-### Training
+## Training
 To train the model, run the following command:
 
 ```bash
-python main.py
+python main.py --train
+```
+
+## Generation
+To generate samples from the model, run the following command:
+
+```bash
+python main.py --generate
 ```
 
 ## References

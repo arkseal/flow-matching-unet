@@ -22,6 +22,7 @@ if __name__ == '__main__':
     train_group.add_argument('--lr', default=1e-4, type=float, help='Learning rate used for training')
     train_group.add_argument('--epoch', default=1, type=int, help='Number of epochs for training')
     train_group.add_argument('--checkpoint-path', default='./checkpoints', type=str, help='Path to save checkpoints')
+    train_group.add_argument('--resume-checkpoint', type=str, help='Path to checkpoint save to respond from')
     
     generate_group = parser.add_argument_group(title='Generation', description='Values for generation')
     generate_group.add_argument('--model-path', default='./model.pth', type=str, help='Path for the Model used for generation')
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     validate_args(args)
     
     if args.train:
-        train(args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path)
+        train(args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
     if args.generate:
         shape = (args.num_images, 1, args.image_res, args.image_res)
-        generate(args.model_path, args.save_path, shape, args.images_per_row, args.device)
+        generate(args.model_path, shape, args.images_per_row, args.device, args.save_path)

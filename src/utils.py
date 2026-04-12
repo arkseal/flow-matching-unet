@@ -16,6 +16,9 @@ def _validate_training_args(args):
     if not args.save_path.exists():
         print(f"Save path {args.save_path} doesn't exist, making folder")
         args.save_path.mkdir()
+    
+    if args.resume_checkpoint and not Path(args.resume_checkpoint).exists():
+        raise ValueError(f"Checkpoint resume path {args.resume_checkpoint} doesn't exist")
 
     args.checkpoint_path = Path(args.checkpoint_path)
     if not args.checkpoint_path.exists():
