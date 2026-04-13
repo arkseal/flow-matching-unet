@@ -2,7 +2,27 @@ import torch
 from torch.utils.data import DataLoader
 import torchvision
 import torchvision.transforms as T
-from torchvision.datasets import MNIST
+from torchvision.datasets import MNIST, CIFAR10
+
+DATASETS = {
+    'MNIST': {
+        'normalization': {
+            # Normalize [0, 1] to [-1, 1]
+            'mean': [0.5],
+            'std': [0.5],
+        },
+        'dataset': MNIST,
+        'channels': 1
+    },
+    'CIFAR10': {
+        'normalization': {
+            'mean': [0.4914, 0.4822, 0.4465],
+            'std': [0.2470, 0.2435, 0.2616],
+        },
+        'dataset': CIFAR10,
+        'channels': 3
+    }
+}
 
 def calculate_normalization_stats(dataset, batch_size=1024):
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0)
@@ -27,14 +47,14 @@ def calculate_normalization_stats(dataset, batch_size=1024):
 def inverse_normalization(x):
     return (x * 0.5) + 0.5
 
-def get_train_data(batch_size=128, num_workers=0):
+def get_train_data(dataset_name, batch_size=128, num_workers=0):
     transform = T.Compose([
         T.ToTensor(),
-        T.Normalize(mean=[0.5], std=[0.5]) # Normalize [0, 1] to [-1, 1]
+        T.Normalize(**DATASETS[dataset_name]['normalization'])
     ])
     
-    dataset = MNIST(root='./data', train=True, transform=transform, download=True)
+    dataset = DATASETS[dataset_name]['dataset'](root='./data', train=True, transform=transform, download=True)
     
     dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True)
     
-    return dataloader
+    return dataloader, DATASETS[dataset_name]['channels']

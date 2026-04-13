@@ -17,6 +17,7 @@ if __name__ == '__main__':
     type_group.add_argument('--generate', action='store_true', help='Generate outputs based on the model')
     
     train_group = parser.add_argument_group(title='Training', description='Values for training')
+    train_group.add_argument('--dataset-name', default='MNIST', type=str, help='Pytorch dataset being used for training')
     train_group.add_argument('--batch-size', default=1, type=int, help='Batch Size used for training')
     train_group.add_argument('--num-workers', default=0, type=int, help='Number of workers used for data loader')
     train_group.add_argument('--lr', default=1e-4, type=float, help='Learning rate used for training')
@@ -34,7 +35,7 @@ if __name__ == '__main__':
     validate_args(args)
     
     if args.train:
-        train(args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
+        train(args.dataset_name, args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
     if args.generate:
         shape = (args.num_images, 1, args.image_res, args.image_res)
         generate(args.model_path, shape, args.images_per_row, args.device, args.save_path)

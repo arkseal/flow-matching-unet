@@ -1,8 +1,11 @@
 from pathlib import Path
+from .data import DATASETS
 
 import torch
 
 def _validate_training_args(args):
+    if args.dataset_name not in DATASETS:
+        raise ValueError(f'Dataset name must be in {DATASETS.keys()}, not {args.dataset_name}')
     if not args.batch_size >= 1:
         raise ValueError(f'Batch size must be at least 1, not {args.batch_size}')
     if not args.num_workers >= 0:

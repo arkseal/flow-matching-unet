@@ -10,14 +10,14 @@ from src.flow import compute_loss, _generate
 from src.model import FlowMatchingUNet
 from src.data import get_train_data
 
-def train(batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu',
+def train(dataset_name='MNIST', batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu',
           checkpoint_path=Path('./checkpoints'), save_path=Path('./results'), resume_path=None):
     start_epoch = 1
     val_shape = (16, 1, 28, 28)
     
-    dataloader = get_train_data(batch_size=batch_size, num_workers=num_workers)
+    dataloader, num_channels = get_train_data(dataset_name=dataset_name, batch_size=batch_size, num_workers=num_workers)
     
-    model = FlowMatchingUNet().to(device)
+    model = FlowMatchingUNet(num_channels).to(device)
     optimizer = optim.AdamW(model.parameters(), lr=lr)
     if resume_path:
         checkpoint = torch.load(resume_path)
