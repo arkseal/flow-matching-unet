@@ -45,11 +45,18 @@ def calculate_normalization_stats(dataset, batch_size=1024):
     return mean, std
 
 def inverse_normalization(x, mean, std):
-    if not isinstance(mean, (tuple, list)):
-        mean = (mean,)
-        std = (std,)
-    for i in range(len(mean)):
-        x[:, i, :, :] = x[:, i, :, :] * std[i] + mean[i]
+    if not isinstance(mean, list):
+        mean = [mean]
+        std = [std]
+    mean_t = torch.tensor(mean, dtype=x.dtype, device=x.device)
+    std_t = torch.tensor(std, dtype=x.dtype, device=x.device)
+    
+    channel_dim = x.dim() - 3
+    shape = [1] * x.dim()
+    shape[channel_dim] = -1
+    
+    x = x * std_t.view(*shape) + mean_t.view(*shape)
+
     return x
 
 def get_norm(dataset_name):
