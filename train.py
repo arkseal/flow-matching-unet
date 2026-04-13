@@ -12,7 +12,7 @@ from src.data import get_train_data
 
 def train(dataset_name='MNIST', batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu',
           checkpoint_path=Path('./checkpoints'), save_path=Path('./results'), resume_path=None):
-    dataloader, shape = get_train_data(dataset_name=dataset_name, batch_size=batch_size, num_workers=num_workers)
+    dataloader, shape, norm = get_train_data(dataset_name=dataset_name, batch_size=batch_size, num_workers=num_workers)
     val_shape = (16,) + shape
     
     model = FlowMatchingUNet(shape[0]).to(device)
@@ -50,7 +50,7 @@ def train(dataset_name='MNIST', batch_size=512, num_workers=8, lr=1e-4, epochs=2
             model.eval()
             tqdm.write(f'Generating Samples for epoch {epoch}:')
             
-            generated_images = _generate(model, val_shape, device)
+            generated_images = _generate(model, val_shape, device, **norm)
             
             image_save_path = save_path / f'epoch_{epoch:03d}.png'
             save_image(make_grid(generated_images, nrow=4), image_save_path)

@@ -2,6 +2,7 @@
 checkpoints*/
 data/
 results*/
+result*
 
 tester.ipynb
 

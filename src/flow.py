@@ -47,8 +47,8 @@ def sample_ode(model, shape, steps=500, device='cpu', leave_progress=False, stor
         return a
     return x
 
-def _generate(model, shape, device, leave_progress=False, store_all=False):
+def _generate(model, shape, device, mean, std, leave_progress=False, store_all=False):
     generated_images = sample_ode(model, shape, device=device, leave_progress=leave_progress, store_all=store_all)
-    generated_images = inverse_normalization(generated_images.cpu())
+    generated_images = inverse_normalization(generated_images.cpu(), mean, std)
     
     return generated_images

@@ -3,12 +3,14 @@ import torchvision.transforms.v2 as T
 from torchvision.utils import save_image, make_grid
 
 from pathlib import Path
+from src.data import get_norm
 from src.flow import _generate
 from src.model import FlowMatchingUNet
 
-def generate(model_path, shape, nrow, device, save_path=Path('./results.png'), generate_gif=True):
+def generate(model_path, shape, nrow, device, dataset_name, save_path=Path('./results.png'), generate_gif=True):
     print('Loading Model...')
-    model = FlowMatchingUNet()
+    norm = get_norm(dataset_name)
+    model = FlowMatchingUNet(shape[1])
     
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict['model_state_dict'])
@@ -18,7 +20,7 @@ def generate(model_path, shape, nrow, device, save_path=Path('./results.png'), g
     print('Loaded Model')
 
     print(f'Generating Samples...')
-    generated_images = _generate(model, shape, device, leave_progress=True, store_all=generate_gif)
+    generated_images = _generate(model, shape, device, **norm, leave_progress=True, store_all=generate_gif)
 
     save_image(make_grid(generated_images[-1] if generate_gif else generated_images, nrow=nrow), save_path)
     if generate_gif:

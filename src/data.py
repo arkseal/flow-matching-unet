@@ -44,8 +44,16 @@ def calculate_normalization_stats(dataset, batch_size=1024):
     
     return mean, std
 
-def inverse_normalization(x):
-    return (x * 0.5) + 0.5
+def inverse_normalization(x, mean, std):
+    if not isinstance(mean, (tuple, list)):
+        mean = (mean,)
+        std = (std,)
+    for i in range(len(mean)):
+        x[:, i, :, :] = x[:, i, :, :] * std[i] + mean[i]
+    return x
+
+def get_norm(dataset_name):
+    return DATASETS[dataset_name]['normalization']
 
 def get_train_data(dataset_name, batch_size=128, num_workers=0):
     transform = T.Compose([
@@ -57,4 +65,4 @@ def get_train_data(dataset_name, batch_size=128, num_workers=0):
     
     dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True)
     
-    return dataloader, DATASETS[dataset_name]['shape']
+    return dataloader, DATASETS[dataset_name]['shape'], DATASETS[dataset_name]['normalization']

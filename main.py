@@ -11,13 +11,13 @@ if __name__ == '__main__':
     )
     parser.add_argument('--device', default='cpu', type=str, help='Device used for training/generation')
     parser.add_argument('--save-path', type=str, help='Path to save results')
+    parser.add_argument('--dataset-name', default='MNIST', type=str, help='Pytorch dataset being used for training/generation')
     
     type_group = parser.add_mutually_exclusive_group()
     type_group.add_argument('--train', action='store_true', help='Train a model')
     type_group.add_argument('--generate', action='store_true', help='Generate outputs based on the model')
     
     train_group = parser.add_argument_group(title='Training', description='Values for training')
-    train_group.add_argument('--dataset-name', default='MNIST', type=str, help='Pytorch dataset being used for training')
     train_group.add_argument('--batch-size', default=1, type=int, help='Batch Size used for training')
     train_group.add_argument('--num-workers', default=0, type=int, help='Number of workers used for data loader')
     train_group.add_argument('--lr', default=1e-4, type=float, help='Learning rate used for training')
@@ -39,4 +39,4 @@ if __name__ == '__main__':
         train(args.dataset_name, args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
     if args.generate:
         shape = (args.num_images, args.num_channels, args.image_res, args.image_res)
-        generate(args.model_path, shape, args.images_per_row, args.device, args.save_path)
+        generate(args.model_path, shape, args.images_per_row, args.device, args.dataset_name, args.save_path)
