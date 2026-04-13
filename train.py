@@ -12,13 +12,13 @@ from src.data import get_train_data
 
 def train(dataset_name='MNIST', batch_size=512, num_workers=8, lr=1e-4, epochs=25, device='xpu',
           checkpoint_path=Path('./checkpoints'), save_path=Path('./results'), resume_path=None):
-    start_epoch = 1
-    val_shape = (16, 1, 28, 28)
+    dataloader, shape = get_train_data(dataset_name=dataset_name, batch_size=batch_size, num_workers=num_workers)
+    val_shape = (16,) + shape
     
-    dataloader, num_channels = get_train_data(dataset_name=dataset_name, batch_size=batch_size, num_workers=num_workers)
-    
-    model = FlowMatchingUNet(num_channels).to(device)
+    model = FlowMatchingUNet(shape[0]).to(device)
     optimizer = optim.AdamW(model.parameters(), lr=lr)
+    
+    start_epoch = 1
     if resume_path:
         checkpoint = torch.load(resume_path)
         

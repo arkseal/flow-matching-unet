@@ -27,6 +27,7 @@ if __name__ == '__main__':
     
     generate_group = parser.add_argument_group(title='Generation', description='Values for generation')
     generate_group.add_argument('--model-path', default='./model.pth', type=str, help='Path for the Model used for generation')
+    generate_group.add_argument('--num-channels', default=1, type=int, help='Number of channels for image')
     generate_group.add_argument('--image-res', default=28, type=int, help='Image height/width')
     generate_group.add_argument('--num-images', default=16, type=int, help='Number of images to generate')
     generate_group.add_argument('--images-per-row', default=4, type=int, help='Number of images per row')
@@ -37,5 +38,5 @@ if __name__ == '__main__':
     if args.train:
         train(args.dataset_name, args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
     if args.generate:
-        shape = (args.num_images, 1, args.image_res, args.image_res)
+        shape = (args.num_images, args.num_channels, args.image_res, args.image_res)
         generate(args.model_path, shape, args.images_per_row, args.device, args.save_path)

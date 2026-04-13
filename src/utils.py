@@ -29,6 +29,8 @@ def _validate_training_args(args):
         args.checkpoint_path.mkdir()
 
 def _validate_generation_args(args):
+    if args.num_channels not in (1, 3):
+        raise ValueError(f'Number of channels must be either 1 or 3, not {args.num_channels}')
     if not Path(args.model_path).exists():
         raise ValueError(f'Model path must exist, {args.model_path} not found')
     

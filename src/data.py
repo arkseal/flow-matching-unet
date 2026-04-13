@@ -12,7 +12,7 @@ DATASETS = {
             'std': [0.5],
         },
         'dataset': MNIST,
-        'channels': 1
+        'shape': (1, 28, 28)
     },
     'CIFAR10': {
         'normalization': {
@@ -20,7 +20,7 @@ DATASETS = {
             'std': [0.2470, 0.2435, 0.2616],
         },
         'dataset': CIFAR10,
-        'channels': 3
+        'shape': (3, 32, 32)
     }
 }
 
@@ -57,4 +57,4 @@ def get_train_data(dataset_name, batch_size=128, num_workers=0):
     
     dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True)
     
-    return dataloader, DATASETS[dataset_name]['channels']
+    return dataloader, DATASETS[dataset_name]['shape']

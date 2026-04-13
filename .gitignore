@@ -1,7 +1,7 @@
 # checkpoints and data
 checkpoints*/
 data/
-results/
+results*/
 
 tester.ipynb
 
