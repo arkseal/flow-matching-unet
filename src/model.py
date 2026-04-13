@@ -65,11 +65,11 @@ class Block(nn.Module):
         return x1 + x
 
 class FlowMatchingUNet(nn.Module):
-    def __init__(self):
+    def __init__(self, image_channels = 1, down_channels = [32, 64, 128], time_emb_dim = 128):
         super(FlowMatchingUNet, self).__init__()
-        image_channels = 1
-        down_channels = [32, 64, 128] # Increasing depth
-        time_emb_dim = 128
+        self.image_channels = image_channels
+        self.down_channels = down_channels # Increasing depth
+        self.time_emb_dim = time_emb_dim
         
         self.time_mlp = nn.Sequential(
             SinusoidalPositionEmbeddings(down_channels[0]),
@@ -122,11 +122,11 @@ class FlowMatchingUNet(nn.Module):
         
         x = self.down_blocks[1](x, t)
         x = self.downsample[1](x)
-        r3 = x.clone() # Not needed
+        #r3 = x.clone() # Not needed
         
         x = self.down_blocks[2](x, t)
         x = self.bottleneck(x, t)
-        r4 = x.clone() # Not needed
+        #r4 = x.clone() # Not needed
         
         x = self.upsample[0](x)
         x = torch.cat((x, r2), dim=1)

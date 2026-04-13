@@ -11,6 +11,7 @@ if __name__ == '__main__':
     )
     parser.add_argument('--device', default='cpu', type=str, help='Device used for training/generation')
     parser.add_argument('--save-path', type=str, help='Path to save results')
+    parser.add_argument('--dataset-name', default='MNIST', type=str, help='Pytorch dataset being used for training/generation')
     
     type_group = parser.add_mutually_exclusive_group()
     type_group.add_argument('--train', action='store_true', help='Train a model')
@@ -26,6 +27,7 @@ if __name__ == '__main__':
     
     generate_group = parser.add_argument_group(title='Generation', description='Values for generation')
     generate_group.add_argument('--model-path', default='./model.pth', type=str, help='Path for the Model used for generation')
+    generate_group.add_argument('--num-channels', default=1, type=int, help='Number of channels for image')
     generate_group.add_argument('--image-res', default=28, type=int, help='Image height/width')
     generate_group.add_argument('--num-images', default=16, type=int, help='Number of images to generate')
     generate_group.add_argument('--images-per-row', default=4, type=int, help='Number of images per row')
@@ -34,7 +36,7 @@ if __name__ == '__main__':
     validate_args(args)
     
     if args.train:
-        train(args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
+        train(args.dataset_name, args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
     if args.generate:
-        shape = (args.num_images, 1, args.image_res, args.image_res)
-        generate(args.model_path, shape, args.images_per_row, args.device, args.save_path)
+        shape = (args.num_images, args.num_channels, args.image_res, args.image_res)
+        generate(args.model_path, shape, args.images_per_row, args.device, args.dataset_name, args.save_path)

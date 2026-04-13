@@ -2,7 +2,27 @@ import torch
 from torch.utils.data import DataLoader
 import torchvision
 import torchvision.transforms as T
-from torchvision.datasets import MNIST
+from torchvision.datasets import MNIST, CIFAR10
+
+DATASETS = {
+    'MNIST': {
+        'normalization': {
+            # Normalize [0, 1] to [-1, 1]
+            'mean': [0.5],
+            'std': [0.5],
+        },
+        'dataset': MNIST,
+        'shape': (1, 28, 28)
+    },
+    'CIFAR10': {
+        'normalization': {
+            'mean': [0.4914, 0.4822, 0.4465],
+            'std': [0.2470, 0.2435, 0.2616],
+        },
+        'dataset': CIFAR10,
+        'shape': (3, 32, 32)
+    }
+}
 
 def calculate_normalization_stats(dataset, batch_size=1024):
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0)
@@ -24,17 +44,32 @@ def calculate_normalization_stats(dataset, batch_size=1024):
     
     return mean, std
 
-def inverse_normalization(x):
-    return (x * 0.5) + 0.5
+def inverse_normalization(x, mean, std):
+    if not isinstance(mean, list):
+        mean = [mean]
+        std = [std]
+    mean_t = torch.tensor(mean, dtype=x.dtype, device=x.device)
+    std_t = torch.tensor(std, dtype=x.dtype, device=x.device)
+    
+    channel_dim = x.dim() - 3
+    shape = [1] * x.dim()
+    shape[channel_dim] = -1
+    
+    x = x * std_t.view(*shape) + mean_t.view(*shape)
 
-def get_train_data(batch_size=128, num_workers=0):
+    return x
+
+def get_norm(dataset_name):
+    return DATASETS[dataset_name]['normalization']
+
+def get_train_data(dataset_name, batch_size=128, num_workers=0):
     transform = T.Compose([
         T.ToTensor(),
-        T.Normalize(mean=[0.5], std=[0.5]) # Normalize [0, 1] to [-1, 1]
+        T.Normalize(**DATASETS[dataset_name]['normalization'])
     ])
     
-    dataset = MNIST(root='./data', train=True, transform=transform, download=True)
+    dataset = DATASETS[dataset_name]['dataset'](root='./data', train=True, transform=transform, download=True)
     
     dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True)
     
-    return dataloader
+    return dataloader, DATASETS[dataset_name]['shape'], DATASETS[dataset_name]['normalization']

@@ -1,4 +1,5 @@
 from pathlib import Path
+from .data import DATASETS
 
 import torch
 
@@ -26,6 +27,8 @@ def _validate_training_args(args):
         args.checkpoint_path.mkdir()
 
 def _validate_generation_args(args):
+    if args.num_channels not in (1, 3):
+        raise ValueError(f'Number of channels must be either 1 or 3, not {args.num_channels}')
     if not Path(args.model_path).exists():
         raise ValueError(f'Model path must exist, {args.model_path} not found')
     
@@ -45,6 +48,9 @@ def validate_args(args):
     elif args.device == 'xpu':
         if not torch.xpu.is_available():
             raise ValueError('XPU device was selected but XPU is not availible')
+    
+    if args.dataset_name not in DATASETS:
+        raise ValueError(f'Dataset name must be in {DATASETS.keys()}, not {args.dataset_name}')
 
     if args.train:
         _validate_training_args(args)
