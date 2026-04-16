@@ -11,6 +11,7 @@ DATASETS = {
             'mean': [0.5],
             'std': [0.5],
         },
+        'randomization': [],
         'dataset': MNIST,
         'shape': (1, 28, 28)
     },
@@ -19,6 +20,10 @@ DATASETS = {
             'mean': [0.4914, 0.4822, 0.4465],
             'std': [0.2470, 0.2435, 0.2616],
         },
+        'randomization': [
+            T.RandomCrop(32, 4, padding_mode='reflect'),
+            T.RandomHorizontalFlip()
+        ],
         'dataset': CIFAR10,
         'shape': (3, 32, 32)
     }
@@ -64,12 +69,13 @@ def get_norm(dataset_name):
 
 def get_train_data(dataset_name, batch_size=128, num_workers=0):
     transform = T.Compose([
+        *DATASETS[dataset_name]['randomization'],
         T.ToTensor(),
         T.Normalize(**DATASETS[dataset_name]['normalization'])
     ])
     
     dataset = DATASETS[dataset_name]['dataset'](root='./data', train=True, transform=transform, download=True)
     
-    dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True)
+    dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True, persistent_workers=True)
     
     return dataloader, DATASETS[dataset_name]['shape'], DATASETS[dataset_name]['normalization']
