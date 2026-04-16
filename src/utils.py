@@ -3,6 +3,17 @@ from .data import DATASETS
 
 import torch
 
+_PRECISION = {
+    'full': torch.float32,
+    'half': torch.float16,
+    'amp': torch.float16,
+    'amp_bfloat16': torch.bfloat16,
+    'amp_bf16': torch.bfloat16
+}
+
+def get_precision_dtype(precision):
+    return _PRECISION.get(precision, torch.float32)
+
 def _validate_training_args(args):
     if not args.batch_size >= 1:
         raise ValueError(f'Batch size must be at least 1, not {args.batch_size}')
@@ -51,6 +62,8 @@ def validate_args(args):
     
     if args.dataset_name not in DATASETS:
         raise ValueError(f'Dataset name must be in {DATASETS.keys()}, not {args.dataset_name}')
+    if args.precision not in _PRECISION:
+        print(f'{args.precision} precision unknown, using full precision')
 
     if args.train:
         _validate_training_args(args)

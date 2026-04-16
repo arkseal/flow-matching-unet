@@ -12,6 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', default='cpu', type=str, help='Device used for training/generation')
     parser.add_argument('--save-path', type=str, help='Path to save results')
     parser.add_argument('--dataset-name', default='MNIST', type=str, help='Pytorch dataset being used for training/generation')
+    parser.add_argument('--precision', default='full', help='Precision for model, use either full,half,amp,amp_bf16')
     
     type_group = parser.add_mutually_exclusive_group()
     type_group.add_argument('--train', action='store_true', help='Train a model')
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     validate_args(args)
     
     if args.train:
-        train(args.dataset_name, args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.resume_checkpoint)
+        train(args.dataset_name, args.batch_size, args.num_workers, args.lr, args.epoch, args.device, args.checkpoint_path, args.save_path, args.precision, args.resume_checkpoint)
     if args.generate:
         shape = (args.num_images, args.num_channels, args.image_res, args.image_res)
         generate(args.model_path, shape, args.images_per_row, args.device, args.dataset_name, args.save_path)
